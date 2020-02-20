@@ -128,7 +128,7 @@ function getMapped(direction, id) {
 }
 
 telegram_bot.on("ready", () => {
-  console.log("Succesfully initiated Discord side")
+  console.log("Succesfully initiated Telegram side")
 })
 
 telegram_bot.on("text", (msg) => {
