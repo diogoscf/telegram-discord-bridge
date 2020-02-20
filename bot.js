@@ -127,6 +127,10 @@ function getMapped(direction, id) {
   return data[direction][id]
 }
 
+telegram_bot.on("ready", () => {
+  console.log("Succesfully initiated Discord side")
+})
+
 telegram_bot.on("text", (msg) => {
   createText(msg.text, msg).then(text => {
     discord_bot.channels.get(DISCORD_CHANNEL).send(`**${getTelegramName(msg.from)}**\n${text}`)
@@ -273,6 +277,7 @@ telegram_bot.on("edited_message_caption", (msg) => {
 })
 
 discord_bot.on("ready", () => {
+  console.log("Succesfully initiated Discord side")
   discord_bot.channels.get(DISCORD_CHANNEL).guild.members.array().forEach(((el) => {
     discord_users[el.user.id] = el.user.username
   }))
