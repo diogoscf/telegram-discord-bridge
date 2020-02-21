@@ -127,11 +127,10 @@ function getMapped(direction, id) {
   return data[direction][id]
 }
 
-telegram_bot.on("ready", () => {
-  console.log("Succesfully initiated Telegram side")
-})
-
 telegram_bot.on("text", (msg) => {
+  if (msg.chat.id != TELEGRAM_CHANNEL) {
+    return
+  }
   createText(msg.text, msg).then(text => {
     discord_bot.channels.get(DISCORD_CHANNEL).send(`**${getTelegramName(msg.from)}**\n${text}`)
       .then(sent => mapMsg("t2d", sent.id, msg.message_id))
@@ -139,6 +138,9 @@ telegram_bot.on("text", (msg) => {
 })
 
 telegram_bot.on("audio", (msg) => {
+  if (msg.chat.id != TELEGRAM_CHANNEL) {
+    return
+  }
   createText(msg.caption, msg).then(caption => {
     telegram_bot.getFileLink(msg.audio.file_id)
       .then((link) => {
@@ -152,6 +154,9 @@ telegram_bot.on("audio", (msg) => {
 })
 
 telegram_bot.on("document", (msg) => {
+  if (msg.chat.id != TELEGRAM_CHANNEL) {
+    return
+  }
   createText(msg.caption, msg).then(caption => {
     telegram_bot.getFileLink(msg.document.file_id)
       .then((link) => {
@@ -168,6 +173,9 @@ telegram_bot.on("document", (msg) => {
 })
 
 telegram_bot.on("photo", (msg) => {
+  if (msg.chat.id != TELEGRAM_CHANNEL) {
+    return
+  }
   createText(msg.caption, msg).then(caption => {
     telegram_bot.getFileLink(msg.photo[msg.photo.length - 1].file_id)
       .then((link) => {
@@ -181,11 +189,17 @@ telegram_bot.on("photo", (msg) => {
 })
 
 telegram_bot.on("sticker", (msg) => {
+  if (msg.chat.id != TELEGRAM_CHANNEL) {
+    return
+  }
   discord_bot.channels.get(DISCORD_CHANNEL).send(`**${getTelegramName(msg.from)}**\n${msg.sticker.emoji}`)
     .then(sent => mapMsg("t2d", sent.id, msg.message_id))
 })
 
 telegram_bot.on("video", (msg) => {
+  if (msg.chat.id != TELEGRAM_CHANNEL) {
+    return
+  }
   createText(msg.caption, msg).then(caption => {
     telegram_bot.getFileLink(msg.video.file_id)
       .then((link) => {
@@ -202,6 +216,9 @@ telegram_bot.on("video", (msg) => {
 })
 
 telegram_bot.on("voice", (msg) => {
+  if (msg.chat.id != TELEGRAM_CHANNEL) {
+    return
+  }
   telegram_bot.getFileLink(msg.voice.file_id)
     .then((link) => {
       discord_bot.channels.get(DISCORD_CHANNEL).send(`**${getTelegramName(msg.from)}**`, {
@@ -213,12 +230,18 @@ telegram_bot.on("voice", (msg) => {
 })
 
 telegram_bot.on("location", (msg) => {
+  if (msg.chat.id != TELEGRAM_CHANNEL) {
+    return
+  }
   link = `http://www.google.com/maps/place/${msg.location.latitude},${msg.location.longitude}`
   discord_bot.channels.get(DISCORD_CHANNEL).send(`**${getTelegramName(msg.from)}**\nLocation: ${link}`)
     .then(sent => mapMsg("t2d", sent.id, msg.message_id))
 })
 
 telegram_bot.on("new_chat_members", (msg) => {
+  if (msg.chat.id != TELEGRAM_CHANNEL) {
+    return
+  }
   if (msg.from.username == msg.new_chat_member.username) {
     discord_bot.channels.get(DISCORD_CHANNEL).send(`**${getTelegramName(msg.from)} joined the group**`)
   } else {
@@ -227,6 +250,9 @@ telegram_bot.on("new_chat_members", (msg) => {
 })
 
 telegram_bot.on("left_chat_member", (msg) => {
+  if (msg.chat.id != TELEGRAM_CHANNEL) {
+    return
+  }
   if (getTelegramName(msg.from) == msg.left_chat_member.username) {
     discord_bot.channels.get(DISCORD_CHANNEL).send(`**${getTelegramName(msg.from)} left the group**`)
   } else {
@@ -235,6 +261,9 @@ telegram_bot.on("left_chat_member", (msg) => {
 })
 
 telegram_bot.on("video_note", (msg) => {
+  if (msg.chat.id != TELEGRAM_CHANNEL) {
+    return
+  }
   telegram_bot.getFileLink(msg.video_note.file_id)
     .then((link) => {
       discord_bot.channels.get(DISCORD_CHANNEL).send(`**${getTelegramName(msg.from)}**`, {
@@ -246,6 +275,9 @@ telegram_bot.on("video_note", (msg) => {
 })
 
 telegram_bot.on("animation", (msg) => {
+  if (msg.chat.id != TELEGRAM_CHANNEL) {
+    return
+  }
   createText(msg.caption, msg).then(caption => {
     telegram_bot.getFileLink(msg.animation.file_id)
       .then((link) => {
@@ -259,6 +291,9 @@ telegram_bot.on("animation", (msg) => {
 })
 
 telegram_bot.on("edited_message_text", (msg) => {
+  if (msg.chat.id != TELEGRAM_CHANNEL) {
+    return
+  }
   discord_bot.channels.get(DISCORD_CHANNEL).fetchMessage(getMapped("t2d", msg.message_id))
     .then((message) => {
       keep = message.content.match(/\*\*\w+\*\*\n/)[0]
@@ -268,6 +303,9 @@ telegram_bot.on("edited_message_text", (msg) => {
 })
 
 telegram_bot.on("edited_message_caption", (msg) => {
+  if (msg.chat.id != TELEGRAM_CHANNEL) {
+    return
+  }
   discord_bot.channels.get(DISCORD_CHANNEL).fetchMessage(getMapped("t2d", msg.message_id))
     .then((message) => {
       keep = message.content.match(/\*\*\w+\*\*\n/)[0]
@@ -277,14 +315,14 @@ telegram_bot.on("edited_message_caption", (msg) => {
 })
 
 discord_bot.on("ready", () => {
-  console.log("Succesfully initiated Discord side")
+  console.log("Succesfully initiated bot")
   discord_bot.channels.get(DISCORD_CHANNEL).guild.members.array().forEach(((el) => {
     discord_users[el.user.id] = el.user.username
   }))
 })
 
 discord_bot.on("message", (msg) => {
-  if (msg.author.id == discord_bot.user.id) {
+  if (msg.author.id == discord_bot.user.id || msg.channel.id != DISCORD_CHANNEL) {
     return;
   }
   if (msg.attachments.array().length) {
@@ -308,7 +346,7 @@ discord_bot.on("message", (msg) => {
 })*/
 
 discord_bot.on("messageUpdate", (oldMsg, newMsg) => {
-  if (oldMsg.content == newMsg.content || newMsg.author.id == discord_bot.user.id) {
+  if (oldMsg.content == newMsg.content || newMsg.author.id == discord_bot.user.id || msg.channel.id != DISCORD_CHANNEL) {
     return;
   }
   if (newMsg.attachments.array().length) {
