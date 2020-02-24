@@ -6,7 +6,7 @@ const {
   parser,
   htmlOutput,
   toHTML
-} = require('discord-markdown');
+} = require("discord-markdown");
 
 const TelegramBot = require("node-telegram-bot-api");
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
